@@ -1,0 +1,6 @@
+@PathoLabAPI_HostAddress = http://localhost:5230
+
+GET {{PathoLabAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
