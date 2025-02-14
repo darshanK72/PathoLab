@@ -40,17 +40,13 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   placeholder
 }) => {
   const selectClasses = `
-    w-full px-4 py-2 rounded-lg border-2 appearance-none transition-colors duration-200
-    bg-white
+    w-full px-3 py-1.5 rounded border transition-colors duration-200
     ${touched && error
-      ? 'border-red-500 focus:border-red-500'
-      : 'border-gray-300 focus:border-indigo-500'
+      ? 'border-red-300 focus:border-red-500'
+      : 'border-gray-300 hover:border-gray-400'
     }
-    focus:outline-none focus:ring-2
-    ${touched && error
-      ? 'focus:ring-red-200'
-      : 'focus:ring-indigo-200'
-    }
+    focus:outline-none
+    disabled:bg-gray-50 disabled:text-gray-500
   `;
 
   return (
@@ -69,9 +65,23 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           </option>
         ))}
       </select>
-      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500">
+      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
         <ChevronDown size={18} />
       </div>
+      {touched && error && (
+        <div className="absolute right-8 top-1/2 -translate-y-1/2">
+          <div className="relative group">
+            <div className="w-4 h-4 text-red-500">
+              ⚠️
+            </div>
+            <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+              <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                {error}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -185,66 +195,101 @@ const PatientForm = () => {
   `;
 
   return (
-    <div className="p-6">
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-8">New Patient Registration</h2>
+    <div className="p-4 [&_*:focus]:outline-none">
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">New Patient Registration</h2>
         
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Personal Information */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Personal Information</h3>
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1">Personal Information</h3>
             
-            <div className="flex gap-6">
-              <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* First Name */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={inputClasses('firstName')}
-                  placeholder="John"
-                />
-                {touched.firstName && errors.firstName && (
-                  <p className="mt-1 text-sm text-red-500">{errors.firstName}</p>
-                )}
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={inputClasses('firstName')}
+                    placeholder="John"
+                  />
+                  {touched.firstName && errors.firstName && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <div className="relative group">
+                        <div className="w-4 h-4 text-red-500">⚠️</div>
+                        <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+                          <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                            {errors.firstName}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={inputClasses('lastName')}
-                  placeholder="Doe"
-                />
-                {touched.lastName && errors.lastName && (
-                  <p className="mt-1 text-sm text-red-500">{errors.lastName}</p>
-                )}
-              </div>
-            </div>
 
-            <div className="flex gap-6">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={inputClasses('dateOfBirth')}
-                />
-                {touched.dateOfBirth && errors.dateOfBirth && (
-                  <p className="mt-1 text-sm text-red-500">{errors.dateOfBirth}</p>
-                )}
+              {/* Last Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={inputClasses('lastName')}
+                    placeholder="Doe"
+                  />
+                  {touched.lastName && errors.lastName && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <div className="relative group">
+                        <div className="w-4 h-4 text-red-500">⚠️</div>
+                        <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+                          <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                            {errors.lastName}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              
-              <div className="flex-1">
+
+              {/* Date of Birth */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={inputClasses('dateOfBirth')}
+                  />
+                  {touched.dateOfBirth && errors.dateOfBirth && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <div className="relative group">
+                        <div className="w-4 h-4 text-red-500">⚠️</div>
+                        <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+                          <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                            {errors.dateOfBirth}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Gender - Already using CustomSelect component */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                 <CustomSelect
                   name="gender"
@@ -256,68 +301,104 @@ const PatientForm = () => {
                   touched={touched.gender}
                   placeholder="Select Gender"
                 />
-                {touched.gender && errors.gender && (
-                  <p className="mt-1 text-sm text-red-500">{errors.gender}</p>
-                )}
               </div>
             </div>
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Contact Information</h3>
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1">Contact Information</h3>
             
-            <div className="flex gap-6">
-              <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Email */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={inputClasses('email')}
-                  placeholder="john.doe@example.com"
-                />
-                {touched.email && errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                )}
+                <div className="relative">
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={inputClasses('email')}
+                    placeholder="john.doe@example.com"
+                  />
+                  {touched.email && errors.email && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <div className="relative group">
+                        <div className="w-4 h-4 text-red-500">⚠️</div>
+                        <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+                          <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                            {errors.email}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={inputClasses('phone')}
-                  placeholder="+1 (555) 000-0000"
-                />
-                {touched.phone && errors.phone && (
-                  <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
-                )}
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={inputClasses('address')}
-                placeholder="123 Main St, City, Country"
-              />
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <div className="relative">
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={inputClasses('phone')}
+                    placeholder="+1 (555) 000-0000"
+                  />
+                  {touched.phone && errors.phone && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <div className="relative group">
+                        <div className="w-4 h-4 text-red-500">⚠️</div>
+                        <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+                          <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                            {errors.phone}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={inputClasses('address')}
+                    placeholder="123 Main St, City, Country"
+                  />
+                  {touched.address && errors.address && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <div className="relative group">
+                        <div className="w-4 h-4 text-red-500">⚠️</div>
+                        <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+                          <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                            {errors.address}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Test Information */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Test Information</h3>
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1">Test Information</h3>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Test Type</label>
@@ -331,30 +412,41 @@ const PatientForm = () => {
                 touched={touched.testType}
                 placeholder="Select Test Type"
               />
-              {touched.testType && errors.testType && (
-                <p className="mt-1 text-sm text-red-500">{errors.testType}</p>
-              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                rows={4}
-                className={inputClasses('notes')}
-                placeholder="Any additional information about the patient or test..."
-              />
+              <div className="relative">
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  rows={4}
+                  className={inputClasses('notes')}
+                  placeholder="Any additional information about the patient or test..."
+                />
+                {touched.notes && errors.notes && (
+                  <div className="absolute right-2 top-4">
+                    <div className="relative group">
+                      <div className="w-4 h-4 text-red-500">⚠️</div>
+                      <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+                        <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                          {errors.notes}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
-          <div className="flex justify-end space-x-4 pt-6">
+          <div className="flex justify-end space-x-4 pt-4">
             <button
               type="button"
               onClick={generatePDF}
-              className="inline-flex items-center px-4 py-2 border-2 border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+              className="inline-flex items-center px-4 py-1.5 border-2 border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none transition-colors duration-200"
             >
               <Download className="h-4 w-4 mr-2" />
               Export PDF
@@ -362,7 +454,7 @@ const PatientForm = () => {
             
             <button
               type="submit"
-              className="inline-flex items-center px-6 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+              className="inline-flex items-center px-6 py-1.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition-colors duration-200"
             >
               <Save className="h-4 w-4 mr-2" />
               Save Patient

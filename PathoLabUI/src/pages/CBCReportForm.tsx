@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, Download, ChevronDown } from 'lucide-react';
+import { Save, Download, ChevronDown, Search } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 interface CBCFormData {
@@ -24,10 +24,32 @@ interface CBCFormData {
   basophils: string;
   platelets: string;
   remarks: string;
+  hemoglobinUnit: string;
+  hematocritUnit: string;
+  rbcUnit: string;
+  mcvUnit: string;
+  mchUnit: string;
+  mchcUnit: string;
+  rdwUnit: string;
+  wbcUnit: string;
+  neutrophilsUnit: string;
+  lymphocytesUnit: string;
+  monocytesUnit: string;
+  eosinophilsUnit: string;
+  basophilsUnit: string;
+  plateletsUnit: string;
 }
 
 interface FormErrors {
   [key: string]: string;
+}
+
+// Add interface for Patient
+interface Patient {
+  id: string;
+  name: string;
+  age: string;
+  gender: string;
 }
 
 const CBCReportForm = () => {
@@ -51,11 +73,28 @@ const CBCReportForm = () => {
     eosinophils: '',
     basophils: '',
     platelets: '',
-    remarks: ''
+    remarks: '',
+    hemoglobinUnit: 'g/dL',
+    hematocritUnit: '%',
+    rbcUnit: 'million/µL',
+    mcvUnit: 'fL',
+    mchUnit: 'pg',
+    mchcUnit: 'g/dL',
+    rdwUnit: '%',
+    wbcUnit: 'K/µL',
+    neutrophilsUnit: '%',
+    lymphocytesUnit: '%',
+    monocytesUnit: '%',
+    eosinophilsUnit: '%',
+    basophilsUnit: '%',
+    plateletsUnit: 'K/µL',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<Patient[]>([]);
 
   const referenceRanges = {
     hemoglobin: '13.5-17.5 g/dL',
@@ -72,6 +111,23 @@ const CBCReportForm = () => {
     eosinophils: '1-4%',
     basophils: '0.5-1%',
     platelets: '150-450 K/µL'
+  };
+
+  const unitOptions = {
+    hemoglobin: ['g/dL', 'g/L'],
+    hematocrit: ['%'],
+    rbc: ['million/µL', 'million/mm³'],
+    mcv: ['fL'],
+    mch: ['pg'],
+    mchc: ['g/dL'],
+    rdw: ['%'],
+    wbc: ['K/µL', 'cells/mm³'],
+    neutrophils: ['%'],
+    lymphocytes: ['%'],
+    monocytes: ['%'],
+    eosinophils: ['%'],
+    basophils: ['%'],
+    platelets: ['K/µL', 'cells/mm³'],
   };
 
   const validateField = (name: string, value: string) => {
@@ -175,29 +231,106 @@ const CBCReportForm = () => {
   };
 
   const inputClasses = (name: string) => `
-    w-full px-4 py-2 rounded-lg border-2 transition-colors duration-200
+    w-full px-3 py-1.5 rounded border transition-colors duration-200
     ${touched[name] && errors[name]
-      ? 'border-red-500 focus:border-red-500'
-      : 'border-gray-300 focus:border-indigo-500'
+      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+      : 'border-gray-300 hover:border-gray-400'
     }
-    focus:outline-none focus:ring-2
-    ${touched[name] && errors[name]
-      ? 'focus:ring-red-200'
-      : 'focus:ring-indigo-200'
-    }
+    focus:outline-none
+    disabled:bg-gray-50 disabled:text-gray-500
   `;
 
+  // Mock patient search function - replace with actual API call
+  const searchPatients = async (query: string) => {
+    // Mock data - replace with actual API call
+    const mockPatients: Patient[] = [
+      { id: 'P001', name: 'John Doe', age: '45', gender: 'male' },
+      { id: 'P002', name: 'Jane Smith', age: '32', gender: 'female' },
+      // Add more mock data as needed
+    ];
+
+    return mockPatients.filter(patient => 
+      patient.name.toLowerCase().includes(query.toLowerCase()) ||
+      patient.id.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setIsSearchOpen(true);
+
+    if (query.trim()) {
+      const results = await searchPatients(query);
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const handlePatientSelect = (patient: Patient) => {
+    setFormData(prev => ({
+      ...prev,
+      patientId: patient.id,
+      patientName: patient.name,
+      age: patient.age,
+      gender: patient.gender
+    }));
+    setIsSearchOpen(false);
+    setSearchQuery('');
+  };
+
   return (
-    <div className="p-6">
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-8">CBC Report Form</h2>
+    <div className="p-4 [&_*:focus]:outline-none">
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">CBC Report Form</h2>
         
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Patient Search Section */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1">Patient Search</h3>
+            <div className="relative">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder="Search patient by ID or name..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg pr-10 hover:border-gray-400 focus:outline-none"
+                />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+
+              {/* Search Results Dropdown */}
+              {isSearchOpen && searchResults.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200">
+                  <ul className="py-1 max-h-60 overflow-auto">
+                    {searchResults.map((patient) => (
+                      <li
+                        key={patient.id}
+                        onClick={() => handlePatientSelect(patient)}
+                        className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+                      >
+                        <div>
+                          <div className="font-medium text-gray-800">{patient.name}</div>
+                          <div className="text-sm text-gray-500">ID: {patient.id}</div>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {patient.age} yrs | {patient.gender}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Patient Information */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Patient Information</h3>
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1">Patient Information</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Patient ID</label>
                 <input
@@ -265,81 +398,121 @@ const CBCReportForm = () => {
           </div>
 
           {/* CBC Parameters */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">CBC Parameters</h3>
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1">CBC Parameters</h3>
 
-            {/* Grid container for labels, values, and units */}
-            <div className="grid grid-cols-3 gap-4">
-              {/* Headers for the columns */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Parameter</label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Value</label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Reference Range</label>
+            <div className="border rounded-lg overflow-hidden">
+              {/* Table Header */}
+              <div className="grid grid-cols-4 bg-gray-50 border-b">
+                <div className="p-3 text-sm font-semibold text-gray-700 border-r">
+                  Parameter
+                </div>
+                <div className="p-3 text-sm font-semibold text-gray-700 border-r">
+                  Value
+                </div>
+                <div className="p-3 text-sm font-semibold text-gray-700 border-r">
+                  Unit
+                </div>
+                <div className="p-3 text-sm font-semibold text-gray-700">
+                  Reference Range
+                </div>
               </div>
 
-              {/* Map through the reference ranges to create rows */}
-              {Object.entries(referenceRanges).map(([key, range]) => (
-                <React.Fragment key={key}>
+              {/* Table Body */}
+              {Object.entries(referenceRanges).map(([key, range], index) => (
+                <div 
+                  key={key} 
+                  className={`grid grid-cols-4 ${
+                    index !== Object.entries(referenceRanges).length - 1 ? 'border-b' : ''
+                  }`}
+                >
                   {/* Parameter Label */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="p-3 flex items-center border-r bg-gray-50">
+                    <label className="text-sm font-medium text-gray-700">
                       {key.charAt(0).toUpperCase() + key.slice(1)}
                     </label>
                   </div>
 
-                  {/* Input for Value */}
-                  <div>
-                    <input
-                      type="text"
-                      name={key}
-                      value={formData[key as keyof CBCFormData]}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className={inputClasses(key)}
-                    />
-                    {touched[key] && errors[key] && (
-                      <p className="mt-1 text-sm text-red-500">{errors[key]}</p>
-                    )}
+                  {/* Value Input */}
+                  <div className="p-3 border-r relative">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name={key}
+                        value={formData[key as keyof CBCFormData]}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`${inputClasses(key)} w-full ${
+                          touched[key] && errors[key] ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''
+                        }`}
+                      />
+                      {touched[key] && errors[key] && (
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 mr-2">
+                          <div className="relative group">
+                            <div className="w-4 h-4 text-red-500">
+                              ⚠️
+                            </div>
+                            <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block">
+                              <div className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-200 shadow-sm whitespace-nowrap">
+                                {errors[key]}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Display Reference Range */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {range}
-                    </label>
+                  {/* Unit Selection */}
+                  <div className="p-3 border-r">
+                    <select
+                      name={`${key}Unit`}
+                      value={formData[`${key}Unit` as keyof CBCFormData]}
+                      onChange={handleChange}
+                      className="w-full px-3 py-1.5 rounded border border-gray-300 hover:border-gray-400 focus:outline-none transition-colors duration-200"
+                    >
+                      {unitOptions[key as keyof typeof unitOptions].map((unit) => (
+                        <option key={unit} value={unit}>
+                          {unit}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                </React.Fragment>
+
+                  {/* Reference Range */}
+                  <div className="p-3 flex items-center">
+                    <span className="text-sm text-gray-600">
+                      {range}
+                    </span>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
 
           {/* Remarks */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Additional Information</h3>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-1">Additional Information</h3>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+              <label className="block text-sm font-medium text-gray-700">Remarks</label>
               <textarea
                 name="remarks"
                 value={formData.remarks}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                rows={4}
+                rows={3}
                 className={inputClasses('remarks')}
                 placeholder="Add any additional notes or observations..."
               />
             </div>
           </div>
           
-          <div className="flex justify-end space-x-4 pt-6">
+          <div className="flex justify-end space-x-4 pt-4">
             <button
               type="button"
               onClick={generatePDF}
-              className="inline-flex items-center px-4 py-2 border-2 border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+              className="inline-flex items-center px-4 py-1.5 border-2 border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none transition-colors duration-200"
             >
               <Download className="h-4 w-4 mr-2" />
               Export PDF
@@ -347,7 +520,7 @@ const CBCReportForm = () => {
             
             <button
               type="submit"
-              className="inline-flex items-center px-6 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+              className="inline-flex items-center px-6 py-1.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition-colors duration-200"
             >
               <Save className="h-4 w-4 mr-2" />
               Save Report

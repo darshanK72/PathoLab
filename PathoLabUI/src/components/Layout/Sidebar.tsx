@@ -12,7 +12,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
   
   const menuItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/patients/new', icon: Users, label: 'Patients' },
+    { path: '/patients', icon: Users, label: 'Patients' },
     { path: '/reports/cbc', icon: FileText, label: 'Reports' },
     { path: '/tests', icon: Flask, label: 'Lab Tests' },
     { path: '/settings', icon: Settings, label: 'Settings' },
