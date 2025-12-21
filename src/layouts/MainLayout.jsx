@@ -7,7 +7,7 @@ const MainLayout = () => {
         <div className="flex h-screen w-screen overflow-hidden bg-gray-50 text-gray-900 font-sans selection:bg-blue-100">
             <Sidebar />
             <main className="flex-1 overflow-auto relative">
-                <div className="relative z-10 p-8 h-full">
+                <div className="relative z-10 p-4 h-full">
                     <Outlet />
                 </div>
             </main>

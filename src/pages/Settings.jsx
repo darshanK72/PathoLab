@@ -48,7 +48,7 @@ const Settings = () => {
     }[tab] || 'Settings';
 
     return (
-        <div className="max-w-7xl mx-auto pb-10 h-full flex flex-col space-y-6">
+        <div className="p-10 mx-auto pb-10 h-full flex flex-col space-y-6">
             <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                     <SettingsIcon className="w-8 h-8 text-gray-700" />
