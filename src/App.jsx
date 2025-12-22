@@ -3,6 +3,7 @@ import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard';
 import PatientEntry from './pages/PatientEntry';
 import CaseEntry from './pages/CaseEntry';
+import CaseDetails from './pages/CaseDetails';
 import Patients from './pages/Patients';
 import Tests from './pages/Tests';
 import TestEditor from './pages/TestEditor';
@@ -18,6 +19,7 @@ function App() {
           <Route path="patients" element={<Patients />} />
           <Route path="patient-entry" element={<PatientEntry />} />
           <Route path="case-entry" element={<CaseEntry />} />
+          <Route path="case-details/:caseId" element={<CaseDetails />} />
           <Route path="tests" element={<Tests />} />
           <Route path="test-editor" element={<TestEditor />} />
           <Route path="settings" element={<Navigate to="settings/report" replace />} />

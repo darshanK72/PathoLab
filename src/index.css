@@ -26,3 +26,78 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+/* CSS for Print - Improved Isolation and Layout Preservation */
+@media print {
+  @page {
+    size: A4;
+    margin: 0 !important;
+  }
+
+  #root {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  body>*:not(.print-only-container) {
+    display: none !important;
+  }
+
+  .print-only-container {
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    z-index: 9999;
+  }
+
+  /* Reset only the immediate scroll containers that might hide content */
+  .print-only-container,
+  .print-only-container>div {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Ensure page wrappers are sized correctly and break properly */
+  .report-page-wrapper {
+    display: block !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    background: white !important;
+  }
+
+  /* Neutalize the scaling div for print */
+  .report-page-wrapper>div {
+    transform: none !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ensure background colors and images are printed */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

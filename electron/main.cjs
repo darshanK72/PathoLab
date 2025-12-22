@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const isDev = process.env.NODE_ENV === 'development';
 
 // Disable sandbox to avoid SUID permission issues on Linux
@@ -10,7 +11,7 @@ function createWindow() {
     width: 1280,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,
       contextIsolation: true,
     },
@@ -43,4 +44,32 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
+});
+
+// PDF Generation Handler
+ipcMain.handle('save-pdf', async (event, options) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+
+  const { filePath } = await dialog.showSaveDialog(win, {
+    title: 'Save Lab Report',
+    defaultPath: `Report_${options.patientName || 'Patient'}.pdf`,
+    filters: [{ name: 'PDF Files', extensions: ['pdf'] }]
+  });
+
+  if (!filePath) return { success: false, error: 'Cancelled' };
+
+  try {
+    const data = await win.webContents.printToPDF({
+      marginsType: 1, // No margins, let CSS and @page handle it exactly
+      pageSize: 'A4',
+      printBackground: true,
+      landscape: false
+    });
+
+    fs.writeFileSync(filePath, data);
+    return { success: true, path: filePath };
+  } catch (error) {
+    console.error('Failed to generate PDF:', error);
+    return { success: false, error: error.message };
+  }
 });

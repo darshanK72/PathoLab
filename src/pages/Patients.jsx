@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { api } from '../lib/api';
+import Pagination from '../components/Pagination';
 
 const Patients = () => {
     const navigate = useNavigate();
@@ -18,6 +19,10 @@ const Patients = () => {
     const [patients, setPatients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     // Fetch patients on mount
     useEffect(() => {
@@ -42,6 +47,17 @@ const Patients = () => {
         patient.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         patient.phone?.includes(searchTerm) ||
         patient.id?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Reset page when search term changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
+    // Calculate pagination
+    const paginatedPatients = filteredPatients.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
     );
 
     const handleDelete = async (id) => {
@@ -117,8 +133,8 @@ const Patients = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {filteredPatients.length > 0 ? (
-                                filteredPatients.map((patient) => (
+                            {paginatedPatients.length > 0 ? (
+                                paginatedPatients.map((patient) => (
                                     <tr key={patient.id} className="hover:bg-gray-50/50 transition-colors group">
                                         <td className="px-6 py-4 font-medium text-gray-900">{patient.id}</td>
                                         <td className="px-6 py-4">
@@ -135,7 +151,7 @@ const Patients = () => {
 
                                                 <button
                                                     title="Create Case"
-                                                    onClick={() => navigate('/case-entry')}
+                                                    onClick={() => navigate('/case-entry', { state: { patientId: patient.id } })}
                                                     className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                 >
                                                     <FlaskConical className="w-4 h-4" />
@@ -174,13 +190,14 @@ const Patients = () => {
                     </table>
                 </div>
                 {/* Pagination (Static) */}
-                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                    <span>Showing {filteredPatients.length} of {patients.length} patients</span>
-                    <div className="flex gap-2">
-                        <button disabled className="px-3 py-1 rounded border border-gray-200 bg-white disabled:opacity-50">Previous</button>
-                        <button disabled className="px-3 py-1 rounded border border-gray-200 bg-white disabled:opacity-50">Next</button>
-                    </div>
-                </div>
+                {/* Pagination */}
+                <Pagination
+                    totalItems={filteredPatients.length}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                />
             </div>
         </div>
     );

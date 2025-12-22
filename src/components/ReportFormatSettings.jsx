@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Trash2, Plus, PenTool, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Upload, Trash2, Plus, PenTool } from 'lucide-react';
+import ReportPreview from './ReportPreview';
 
 const AVAILABLE_FIELDS = [
     { id: 'patientName', label: 'Patient Name', example: 'Mr Dummy' },
@@ -31,39 +32,14 @@ const ReportFormatSettings = ({ settings, onUpdate }) => {
         showEndMarker: true
     });
 
-    const [scale, setScale] = useState(0.55); // Default scale to fit
-    const reportRef = useRef(null);
-    const [contentHeight, setContentHeight] = useState(0);
-
-    const handleZoomIn = () => setScale(prev => Math.min(prev + 0.1, 1.5));
-    const handleZoomOut = () => setScale(prev => Math.max(prev - 0.1, 0.3));
-    const handleResetZoom = () => setScale(0.55);
-
-    // Mouse wheel zoom handler (Ctrl + Wheel)
-    const handleWheel = (e) => {
-        if (e.ctrlKey) {
-            e.preventDefault();
-            const delta = e.deltaY * -0.001;
-            setScale(prev => Math.min(Math.max(prev + delta, 0.3), 1.5));
-        }
-    };
-
-    // Measure report content height to set container size
-    useEffect(() => {
-        if (!reportRef.current) return;
-        const observer = new ResizeObserver((entries) => {
-            for (let entry of entries) {
-                setContentHeight(entry.contentRect.height);
-            }
-        });
-        observer.observe(reportRef.current);
-        return () => observer.disconnect();
-    }, []);
-
     const handleChange = (field, value) => {
         const updated = { ...localSettings, [field]: value };
         setLocalSettings(updated);
-        onUpdate({ ...settings, reportFormat: updated });
+    };
+
+    const handleSaveClick = () => {
+        onUpdate({ ...settings, reportFormat: localSettings });
+        alert('Report format settings saved successfully!');
     };
 
     const togglePatientField = (fieldId) => {
@@ -432,214 +408,24 @@ const ReportFormatSettings = ({ settings, onUpdate }) => {
                         ))}
                     </div>
                 </div>
-            </div>
 
-            {/* Preview Panel (A4 Aspect Ratio) */}
-            <div
-                className="flex-1 bg-gray-100/50 rounded-xl overflow-hidden relative flex flex-col"
-            >
-                {/* Toolbar */}
-                <div className="absolute top-4 right-6 z-20 flex gap-2 bg-white/90 backdrop-blur shadow-sm p-1.5 rounded-lg border border-gray-200">
-                    <button onClick={handleZoomOut} className="p-1 hover:bg-gray-100 rounded text-gray-600" title="Zoom Out">
-                        <ZoomOut className="w-5 h-5" />
-                    </button>
-                    <span className="text-xs font-mono flex items-center px-1 min-w-[3rem] justify-center text-gray-500">
-                        {Math.round(scale * 100)}%
-                    </span>
-                    <button onClick={handleZoomIn} className="p-1 hover:bg-gray-100 rounded text-gray-600" title="Zoom In">
-                        <ZoomIn className="w-5 h-5" />
-                    </button>
-                    <div className="w-px bg-gray-200 mx-1"></div>
-                    <button onClick={handleResetZoom} className="p-1 hover:bg-gray-100 rounded text-gray-600" title="Reset Zoom">
-                        <RotateCcw className="w-4 h-4" />
-                    </button>
-                </div>
-
-                {/* Scrollable Container */}
-                <div
-                    className="flex-1 overflow-auto p-8 custom-scrollbar relative bg-gray-100/50"
-                    onWheel={handleWheel}
-                >
-                    {/* Sizing Wrapper: Ensures scrollbar matches scaled content EXACTLY */}
-                    <div
-                        style={{
-                            width: `calc(210mm * ${scale})`,
-                            height: contentHeight ? `${contentHeight * scale}px` : 'auto',
-                            minHeight: `calc(297mm * ${scale})`,
-                            position: 'relative',
-                            margin: '0 auto', // Center horizontally
-                        }}
-                    >
-                        {/* Actual A4 Content - Scaled with Transform */}
-                        <div
-                            ref={reportRef}
-                            className="bg-white shadow-2xl flex flex-col origin-top-left absolute top-0 left-0"
-                            style={{
-                                width: '210mm',
-                                minHeight: '297mm', // Only min height, allow growing
-                                paddingTop: `${localSettings.marginTop || 40}px`,
-                                paddingBottom: `${localSettings.marginBottom || 40}px`,
-                                paddingLeft: `${localSettings.marginLeft || 40}px`,
-                                paddingRight: `${localSettings.marginRight || 40}px`,
-                                transform: `scale(${scale})`
-                            }}
-                        >
-                            {/* Header Preview */}
-                            <div className=" mb-2">
-                                {localSettings.headerMode === 'image' && localSettings.headerImage ? (
-                                    <img
-                                        src={localSettings.headerImage}
-                                        alt="Header"
-                                        className="absolute top-0 left-0 w-full object-cover"
-                                        style={{
-                                            height: 'auto',
-                                            maxHeight: '150px' // cap height reasonably
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="border-b-2 border-gray-800 flex justify-between items-start pb-4">
-                                        <div className="flex flex-col">
-                                            <h1 className="text-3xl font-bold text-blue-900 tracking-tight">{localSettings.headerText || 'LAB NAME'}</h1>
-                                            <p className="text-sm text-gray-500 mt-1">123, Medical Hub, Health City, NY 10001</p>
-                                        </div>
-                                        {localSettings.headerImage && (
-                                            <img src={localSettings.headerImage} alt="Logo" className="h-20 object-contain" />
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Patient Details Content - 2 Column Grid */}
-                            <div className="border-2 border-gray-800 p-2 mb-4">
-                                <div className="flex gap-4 text-xs">
-                                    {/* Left Column */}
-                                    <div className="flex-1 space-y-1 relative">
-                                        {['patientName', 'ageSex', 'referredBy', 'phone']
-                                            .filter(id => (localSettings.patientDetails || []).includes(id))
-                                            .map(id => {
-                                                const field = AVAILABLE_FIELDS.find(f => f.id === id);
-                                                return (
-                                                    <div key={id} className="flex">
-                                                        <span className="font-medium text-gray-700 w-24 shrink-0">{field.label}</span>
-                                                        <span className="mx-2">:</span>
-                                                        <span className="font-medium text-gray-900">{field.example}</span>
-                                                    </div>
-                                                );
-                                            })
-                                        }
-                                    </div>
-
-                                    {/* Right Column */}
-                                    <div className="flex-1 space-y-1">
-                                        {['patientId', 'reportId', 'collectionDate', 'reportDate']
-                                            .filter(id => (localSettings.patientDetails || []).includes(id))
-                                            .map(id => {
-                                                const field = AVAILABLE_FIELDS.find(f => f.id === id);
-                                                return (
-                                                    <div key={id} className="flex">
-                                                        <span className="font-medium text-gray-700 w-28 shrink-0">{field.label}</span>
-                                                        <span className="mx-2">:</span>
-                                                        <span className="font-medium text-gray-900">{field.example}</span>
-                                                    </div>
-                                                );
-                                            })
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Main Body Content - Flexible Height */}
-                            <div className="flex-1 py-2 space-y-4 z-10 flex flex-col">
-                                <div className="space-y-4">
-                                    <h2 className="text-center font-bold text-lg underline text-gray-800">HEMATOLOGY REPORT</h2>
-
-                                    {/* Test Results Placeholder */}
-                                    <div className="border rounded bg-yellow-50 p-4 min-h-[200px] flex items-center justify-center text-gray-400 italic">
-                                        [Test Results Table Placeholder - Will be populated from Test Format]
-                                    </div>
-
-                                    {/* Interpretation Section - Immediately after results */}
-                                    <div className="space-y-2 pt-2">
-                                        <h3 className="font-bold text-gray-800 text-sm border-b pb-1 inline-block">Interpretation / Comments</h3>
-                                        <div className="text-xs text-gray-600 space-y-1">
-                                            <p>
-                                                <strong>Clinical Correlation:</strong> Please correlate with clinical findings and other investigations.
-                                            </p>
-                                            <p>
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Customizable Note */}
-                                    {localSettings.reportNote && (
-                                        <div className="mt-2 p-3 bg-gray-50 rounded text-xs text-gray-700 border border-gray-100">
-                                            <strong>Note:</strong> {localSettings.reportNote}
-                                        </div>
-                                    )}
-
-                                    {/* End of Report Marker */}
-                                    {localSettings.showEndMarker && (
-                                        <div className="py-4 text-center">
-                                            <p className="text-xs font-bold text-gray-400">~~~~~~ End Of Report ~~~~~~</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Spacer to push signatures to bottom */}
-                                <div className="flex-1"></div>
-
-                                {/* Signatures Sections - Fixed at bottom of content area */}
-                                <div className="mt-4 mb-2">
-                                    <div className="flex justify-between items-end gap-4 flex-wrap">
-                                        {localSettings.signatures?.map((sig) => (
-                                            <div key={sig.id} className="text-center min-w-[120px]">
-                                                <div className="h-16 flex items-center justify-center mb-1">
-                                                    {sig.image ? (
-                                                        <img src={sig.image} alt={sig.name} className="h-full object-contain" />
-                                                    ) : (
-                                                        <p className="font-handwriting text-xl text-blue-800 italic">{sig.name}</p>
-                                                    )}
-                                                </div>
-                                                <p className="font-bold text-sm text-gray-900">{sig.name}</p>
-                                                <p className="text-xs text-gray-500">{sig.role}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Page Number */}
-                                <div className="text-center py-1">
-                                    <span className="text-[10px] text-gray-400 font-medium">Page 1 of 1</span>
-                                </div>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="mt-auto z-10 w-full">
-                                {localSettings.footerMode === 'image' && localSettings.footerImage ? (
-                                    <img
-                                        src={localSettings.footerImage}
-                                        alt="Footer"
-                                        className="absolute bottom-0 left-0 w-full object-cover"
-                                        style={{
-                                            height: 'auto',
-                                            maxHeight: '100px'
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="border-t pt-4 text-center text-xs text-gray-400 flex flex-col items-center gap-2">
-                                        {localSettings.footerImage && (
-                                            <img src={localSettings.footerImage} alt="Footer" className="h-12 object-contain" />
-                                        )}
-                                        <p>{localSettings.footerText || "Report Generated Electronically"}</p>
-                                    </div>
-                                )}
-                            </div>
-
-                        </div>
+                {/* Sticky Action Footer */}
+                <div className="p-4 border-t bg-gray-50 flex items-center justify-between rounded-b-xl relative">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <PenTool className="w-3 h-3" />
+                        <span>Changes are previewed live but not saved yet</span>
                     </div>
+                    <button
+                        onClick={handleSaveClick}
+                        className="px-6 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                        Save Changes
+                    </button>
                 </div>
             </div>
+
+            {/* Preview Panel - Show local live changes */}
+            <ReportPreview settings={{ ...settings, reportFormat: localSettings }} />
         </div>
     );
 };

@@ -42,7 +42,38 @@ export const api = {
         return response.json();
     },
 
-    // Cases can be added similarly
+    // Cases
+    getCases: async () => {
+        const response = await fetch(`${BASE_URL}/cases`);
+        if (!response.ok) throw new Error('Failed to fetch cases');
+        return response.json();
+    },
+
+    getCase: async (id) => {
+        const response = await fetch(`${BASE_URL}/cases/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch case');
+        return response.json();
+    },
+
+    createCase: async (caseData) => {
+        const response = await fetch(`${BASE_URL}/cases`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(caseData),
+        });
+        if (!response.ok) throw new Error('Failed to create case');
+        return response.json();
+    },
+
+    updateCase: async (id, caseData) => {
+        const response = await fetch(`${BASE_URL}/cases/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(caseData),
+        });
+        if (!response.ok) throw new Error('Failed to update case');
+        return response.json();
+    },
 
     // Tests
     getTests: async () => {

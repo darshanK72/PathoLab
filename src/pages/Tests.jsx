@@ -9,6 +9,7 @@ import {
     Beaker
 } from 'lucide-react';
 import { api } from '../lib/api';
+import Pagination from '../components/Pagination';
 
 const Tests = () => {
     const navigate = useNavigate();
@@ -16,6 +17,10 @@ const Tests = () => {
     const [tests, setTests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     // Fetch tests on mount
     useEffect(() => {
@@ -49,6 +54,17 @@ const Tests = () => {
     const filteredTests = tests.filter(test =>
         test.testName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         test.department?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Reset page when search term changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
+    // Calculate pagination
+    const paginatedTests = filteredTests.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
     );
 
     return (
@@ -112,8 +128,8 @@ const Tests = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {filteredTests.length > 0 ? (
-                                filteredTests.map((test) => (
+                            {paginatedTests.length > 0 ? (
+                                paginatedTests.map((test) => (
                                     <tr key={test.id} className="hover:bg-gray-50/50 transition-colors group">
                                         <td className="px-6 py-4 font-medium text-gray-500">{test.id}</td>
                                         <td className="px-6 py-4">
@@ -164,6 +180,13 @@ const Tests = () => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    totalItems={filteredTests.length}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                />
             </div>
         </div>
     );

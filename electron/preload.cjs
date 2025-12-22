@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    // Add methods here
+    saveReportAsPDF: (options) => ipcRenderer.invoke('save-pdf', options)
 });
