@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, UserCircle, FlaskConical, ClipboardList, Settings, ChevronDown, ChevronRight, ShieldCheck, Layout } from 'lucide-react';
+import { LayoutDashboard, FileText, UserCircle, FlaskConical, ClipboardList, Settings, ChevronDown, ChevronRight, ShieldCheck, Layout, Stethoscope, LogOut } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-const Sidebar = () => {
+const Sidebar = ({ user, onLogout }) => {
     const location = useLocation();
     const [expandedMenu, setExpandedMenu] = useState('Settings'); // Default expanded for visibility
 
     const navItems = [
         { path: '/', label: 'Dashboard', icon: LayoutDashboard },
         { path: '/patients', label: 'Patients', icon: UserCircle },
-        { path: '/tests', label: 'Tests', icon: ClipboardList },
+        { path: '/cases', label: 'Cases', icon: ClipboardList },
+        { path: '/doctors', label: 'Referrals', icon: Stethoscope },
+        { path: '/tests', label: 'Tests', icon: FileText },
         {
             label: 'Settings',
             icon: Settings,
@@ -119,15 +121,22 @@ const Sidebar = () => {
 
             {/* User Profile Snippet (Bottom) */}
             <div className="p-4 border-t border-gray-100">
-                <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 border border-gray-100 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm border border-blue-200">
                         <UserCircle className="w-6 h-6" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">Dr. S. Kumar</p>
-                        <p className="text-xs text-gray-500 truncate">Super Admin</p>
+                        <p className="text-sm font-bold text-gray-900 truncate capitalize">{user?.username}</p>
+                        <p className="text-xs text-blue-600 font-medium truncate">{user?.role}</p>
                     </div>
                 </div>
+                <button
+                    onClick={onLogout}
+                    className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors group"
+                >
+                    <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <span className="font-semibold">Sign Out</span>
+                </button>
             </div>
         </div>
     );

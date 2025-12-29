@@ -1,138 +1,135 @@
-const BASE_URL = 'http://localhost:3000';
+const db = window.electronAPI.db;
 
 export const api = {
     // Patients
     getPatients: async () => {
-        const response = await fetch(`${BASE_URL}/patients`);
-        if (!response.ok) throw new Error('Failed to fetch patients');
-        return response.json();
+        return await db.getPatients();
     },
 
     getPatient: async (id) => {
-        const response = await fetch(`${BASE_URL}/patients/${id}`);
-        if (!response.ok) throw new Error('Failed to fetch patient');
-        return response.json();
+        return await db.getPatient(id);
     },
 
     createPatient: async (patientData) => {
-        const response = await fetch(`${BASE_URL}/patients`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(patientData),
-        });
-        if (!response.ok) throw new Error('Failed to create patient');
-        return response.json();
+        return await db.createPatient(patientData);
     },
 
     updatePatient: async (id, patientData) => {
-        const response = await fetch(`${BASE_URL}/patients/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(patientData),
-        });
-        if (!response.ok) throw new Error('Failed to update patient');
-        return response.json();
+        return await db.updatePatient(id, patientData);
     },
 
     deletePatient: async (id) => {
-        const response = await fetch(`${BASE_URL}/patients/${id}`, {
-            method: 'DELETE',
-        });
-        if (!response.ok) throw new Error('Failed to delete patient');
-        return response.json();
+        return await db.deletePatient(id);
     },
 
     // Cases
     getCases: async () => {
-        const response = await fetch(`${BASE_URL}/cases`);
-        if (!response.ok) throw new Error('Failed to fetch cases');
-        return response.json();
+        return await db.getCases();
     },
 
     getCase: async (id) => {
-        const response = await fetch(`${BASE_URL}/cases/${id}`);
-        if (!response.ok) throw new Error('Failed to fetch case');
-        return response.json();
+        return await db.getCase(id);
     },
 
     createCase: async (caseData) => {
-        const response = await fetch(`${BASE_URL}/cases`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(caseData),
-        });
-        if (!response.ok) throw new Error('Failed to create case');
-        return response.json();
+        return await db.createCase(caseData);
     },
 
     updateCase: async (id, caseData) => {
-        const response = await fetch(`${BASE_URL}/cases/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(caseData),
-        });
-        if (!response.ok) throw new Error('Failed to update case');
-        return response.json();
+        return await db.updateCase(id, caseData);
+    },
+
+    deleteCase: async (id) => {
+        return await db.deleteCase(id);
     },
 
     // Tests
     getTests: async () => {
-        const response = await fetch(`${BASE_URL}/tests`);
-        if (!response.ok) throw new Error('Failed to fetch tests');
-        return response.json();
+        return await db.getTests();
     },
 
     getTest: async (id) => {
-        const response = await fetch(`${BASE_URL}/tests/${id}`);
-        if (!response.ok) throw new Error('Failed to fetch test');
-        return response.json();
+        return await db.getTest(id);
     },
 
     createTest: async (testData) => {
-        const response = await fetch(`${BASE_URL}/tests`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(testData),
-        });
-        if (!response.ok) throw new Error('Failed to create test');
-        return response.json();
+        return await db.createTest(testData);
     },
 
     updateTest: async (id, testData) => {
-        const response = await fetch(`${BASE_URL}/tests/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(testData),
-        });
-        if (!response.ok) throw new Error('Failed to update test');
-        return response.json();
+        return await db.updateTest(id, testData);
     },
 
     deleteTest: async (id) => {
-        const response = await fetch(`${BASE_URL}/tests/${id}`, {
-            method: 'DELETE',
-        });
-        if (!response.ok) throw new Error('Failed to delete test');
-        return response.json();
+        return await db.deleteTest(id);
     },
 
+    // Doctors
+    getDoctors: async () => {
+        return await db.getDoctors();
+    },
+
+    getDoctor: async (id) => {
+        return await db.getDoctor(id);
+    },
+
+    createDoctor: async (doctorData) => {
+        return await db.createDoctor(doctorData);
+    },
+
+    updateDoctor: async (id, doctorData) => {
+        return await db.updateDoctor(id, doctorData);
+    },
+
+    deleteDoctor: async (id) => {
+        return await db.deleteDoctor(id);
+    },
 
     // Settings
     getSettings: async () => {
-        // Since settings is a single object, we might fetch the whole db or a specific endpoint if supported.
-        // JSON Server usually supports /endpoint.
-        const response = await fetch(`${BASE_URL}/settings`);
-        if (!response.ok) throw new Error('Failed to fetch settings');
-        return response.json();
+        return await db.getSettings();
     },
 
     updateSettings: async (settingsData) => {
-        const response = await fetch(`${BASE_URL}/settings`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(settingsData),
-        });
-        if (!response.ok) throw new Error('Failed to update settings');
-        return response.json();
+        return await db.updateSettings(settingsData);
+    },
+
+    // Auth methods
+    login: async (credentials) => {
+        return await db.login(credentials);
+    },
+
+    getCurrentUser: async () => {
+        return await db.getCurrentUser();
+    },
+
+    logout: async () => {
+        return await db.logout();
+    },
+
+    // Licensing methods
+    getMachineId: async () => {
+        return await db.getMachineId();
+    },
+
+    verifyAndActivate: async (key) => {
+        return await db.verifyAndActivate(key);
+    },
+
+    checkLicenseStatus: async () => {
+        return await db.checkLicenseStatus();
+    },
+
+    // User management
+    getUsers: async () => {
+        return await db.getUsers();
+    },
+
+    createUser: async (userData) => {
+        return await db.createUser(userData);
+    },
+
+    deleteUser: async (id) => {
+        return await db.deleteUser(id);
     },
 };
