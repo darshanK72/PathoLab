@@ -5,4 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: './', // Ensure relative paths for Electron file protocol
+  build: {
+    target: 'chrome108', // Electron 22 uses Chrome 108
+    outDir: 'dist',
+    assetsDir: '.',
+  },
 })

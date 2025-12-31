@@ -1,22 +1,25 @@
 import React from 'react';
 import { Users, Activity, CreditCard, TrendingUp } from 'lucide-react';
 
-const StatCard = ({ title, value, subtext, icon: Icon, color }) => (
-    <div className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-md hover:border-blue-100 transition-all duration-300 group shadow-sm">
-        <div className="flex items-start justify-between text-gray-700">
-            <div>
-                <p className="text-gray-500 text-sm font-medium mb-1">{title}</p>
-                <h3 className="text-3xl font-bold text-gray-900 mb-2">{value}</h3>
-                <p className={`text-xs font-medium ${subtext.startsWith('+') ? 'text-green-600' : 'text-gray-500'}`}>
-                    {subtext}
-                </p>
-            </div>
-            <div className={`p-3 rounded-xl bg-opacity-10 ${color} group-hover:scale-105 transition-transform duration-300`}>
-                <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+const StatCard = ({ title, value, subtext, icon, color }) => {
+    const StatIcon = icon;
+    return (
+        <div className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-md hover:border-blue-100 transition-all duration-300 group shadow-sm">
+            <div className="flex items-start justify-between text-gray-700">
+                <div>
+                    <p className="text-gray-500 text-sm font-medium mb-1">{title}</p>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-2">{value}</h3>
+                    <p className={`text-xs font-medium ${subtext.startsWith('+') ? 'text-green-600' : 'text-gray-500'}`}>
+                        {subtext}
+                    </p>
+                </div>
+                <div className={`p-3 rounded-xl bg-opacity-10 ${color} group-hover:scale-105 transition-transform duration-300`}>
+                    <StatIcon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const Dashboard = () => {
     const stats = [
